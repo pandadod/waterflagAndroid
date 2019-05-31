@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">WaterFlag</string>
+    <string name="name">Name</string>
+    <string name="entrez_dans_le_donjon">Entrez dans le donjon</string>
+    <string name="logo">logo</string>
+    <string name="press_start">Press Start !</string>
+    <string name="enter_your_pseudo">Enter_your_pseudo</string>
+    <string name="start">Start</string>
+    <string name="descriptionGame">TextView</string>
+    <string name="background">background</string>
+    <string name="perso">perso</string>
+    <string name="physical_attack">physical attack</string>
+    <string name="magical_attack">magical attack</string>
+    <string name="potion">potion</string>
+</resources>
