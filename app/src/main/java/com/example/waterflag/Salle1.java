@@ -1,16 +1,19 @@
 package com.example.waterflag;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.text.method.ScrollingMovementMethod;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ToggleButton;
+
+import java.util.Random;
 
 public class Salle1 extends AppCompatActivity {
 
@@ -18,52 +21,128 @@ public class Salle1 extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_salle1);
-
         SharedPreferences sharedpref = Salle1.this.getSharedPreferences("com.example.waterflag", Context.MODE_PRIVATE);
         TextView tvPseudo = findViewById(R.id.tvpseudo);
         tvPseudo.setText(sharedpref.getString("PSEUDO", ""));
-        final ImageView ivBackground = findViewById(R.id.ivBackground);
-        final Heros hero = new Heros(tvPseudo.getText().toString(), 4000, 50, 200);
-        final Monster gobelin = new Monster("gobelin", 500, 50);
+        final Heros hero = new Heros(tvPseudo.getText().toString(), 4000, 50, 200, R.drawable.fond);
+        final ImageView ivBackground = findViewById(R.id.ivMonstre);
+        final TextView tvPvMonstre = findViewById(R.id.tvPvMonstre);
+        final TextView tvNameMonstre = findViewById(R.id.tvNameMonstre);
+        final TextView tvWeaponMonstre = findViewById(R.id.tvWeaponMonstre);
+        final ToggleButton tbAxe = findViewById(R.id.tbAxe);
+        final ToggleButton tbStaff = findViewById(R.id.tbStaff);
+
+        final ToggleButton tbSword = findViewById(R.id.tbSword);
+        tbSword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (tbSword.isChecked()){
+                    tbSword.setChecked(true);
+                    hero.setWeapon("sword");
+                    tbAxe.setChecked(false);
+                    tbStaff.setChecked(false);
+                }
+                else {
+                    tbSword.setChecked(false);
+                }
+            }
+        });
+        tbAxe.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (tbAxe.isChecked()){
+                    tbAxe.setChecked(true);
+                    hero.setWeapon("axe");
+                    tbSword.setChecked(false);
+                    tbStaff.setChecked(false);
+                }
+                else {
+                    tbAxe.setChecked(false);
+                }
+            }
+        });
+        tbStaff.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (tbStaff.isChecked()){
+                    tbStaff.setChecked(true);
+                    hero.setWeapon("staff");
+                    tbSword.setChecked(false);
+                    tbAxe.setChecked(false);
+                }
+                else {
+                    tbStaff.setChecked(false);
+                }
+            }
+        });
+
+        final Persos p = monstre();
+        tvPvMonstre.setText(String.valueOf(p.getPv()));
+        tvNameMonstre.setText(p.getName());
+        tvWeaponMonstre.setText(p.getWeapon());
+        ivBackground.setImageResource(p.getImageId());
+
+        final ImageButton ibMagicAttack = findViewById(R.id.ibMA);
+
         final TextView tvPv = findViewById(R.id.tvPv);
         tvPv.setText(String.valueOf(hero.getPv()));
-        final TextView tvDialog = findViewById(R.id.tvDialog);
-        tvDialog.setMovementMethod(new ScrollingMovementMethod());
-        tvDialog.append("A goblin appears with a " + gobelin.weaponShuffle()+"\n");
+        final ImageButton ibPotion = findViewById(R.id.ibPotion);
+        final ImageButton ibPhysicAttack = findViewById(R.id.ibPa);
 
-
-        ImageButton ibPotion = findViewById(R.id.ibPotion);
-        ImageButton ibPhysicAttack = findViewById(R.id.ibPa);
         ibPhysicAttack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                    hero.damage(gobelin);
-                    tvDialog.append(" attacks !\n");
-                    tvDialog.append(gobelin.getName() + " takes damages !\n");
-                    tvDialog.append(gobelin.isKo() ? gobelin.getName() + " is dead\n" : gobelin.getName() + " is still alive and its life is: " + gobelin.getPv()+"\n");
-                    if(!gobelin.isKo()){
-                        gobelin.damage(hero);
-                        tvDialog.append(gobelin.getName() + " attacks !\n");
-                        tvDialog.append(hero.getName() + " takes damages !\n");
-                        tvPv.setText(String.valueOf(hero.getPv()));
-                        tvDialog.append(hero.isKo() ? hero.getName() + " is dead\n" : hero.getName() + " is still alive and its life is: " + hero.getPv()+"\n");
+                hero.damage(p);
+                tvPvMonstre.setText(String.valueOf(p.getPv()));
+
+                if (p.isKo()) {
+                    p.setPv(0);
+                    tvPvMonstre.setText(String.valueOf(p.getPv()));
+                }
+                if (!p.isKo()) {
+                    if(p.equals(Boss.class)) {
+                        int index;
+                        Random r = new Random();
+                        index = r.nextInt((1 - 0) + 1) + 0;
+                        if(index == 0) {
+                            p.damage(hero);
+                        }
+                        else {
+                            p.damage(hero);
+                            p.damage(hero);
+                        }
                     }
-                    else {
-                        ivBackground.setImageResource(R.drawable.dead);                    }
+                    p.damage(hero);
+
+
+                    tvPv.setText(String.valueOf(hero.getPv()));
+                    if (hero.isKo()) {
+                        hero.setPv(0);
+                        tvPv.setText(String.valueOf(hero.getPv()));
+                        ibPhysicAttack.setEnabled(false);
+                        ibMagicAttack.setEnabled(false);
+                        ibPotion.setEnabled(false);
+                    } else {
+
+                    }
+
+                } else {
+                    ivBackground.setImageResource(R.drawable.victory);
+                }
             }
         });
-        ImageButton ibMagicAttack = findViewById(R.id.ibMA);
+
         ibMagicAttack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                tvDialog.append("A goblin appears with a " + gobelin.weaponShuffle()+"\n");
-                gobelin.setPv(500);
+                Persos p = monstre();
+                tvPvMonstre.setText(String.valueOf(p.getPv()));
+                tvNameMonstre.setText(p.getName());
+                tvWeaponMonstre.setText(p.getWeapon());
+                ivBackground.setImageResource(p.getImageId());
             }
         });
-
-
-
 
 
         //test sur les potions à supprimer ? voir avec la méthode dé la classe Heros
@@ -76,19 +155,34 @@ public class Salle1 extends AppCompatActivity {
 
                 int nbPotion = Integer.parseInt(tvNbPotion.getText().toString());
 
-                if(nbPotion > 0){
+                if (nbPotion > 0) {
                     hero.setPv(hero.getPv() + 1500);
                     tvPv.setText(String.valueOf(hero.getPv()));
                     tvNbPotion.setText(String.valueOf(nbPotion - 1));
-                    tvDialog.append("You take a potion\n");
-                    tvDialog.append("still get "+ tvNbPotion.getText()+" potion(s)\n");
 
-                }
-                else {
+
+                } else {
                     tvNbPotion.setText(String.valueOf(0));
-                    tvDialog.append("you don't have any potion\n");
+
                 }
             }
         });
+
     }
+
+    public Persos monstre() {
+        Random r = new Random();
+        int index = r.nextInt((10 - 0) + 1) + 0;
+        if (index < 5) {
+            Monster gobelin = new Monster("gobelin", 500, 50, R.drawable.monstre);
+            return gobelin;
+        } else if (index >= 5 && index <= 8) {
+            Mage merlin = new Mage("Baba Yaga", 500, 50, 200, R.drawable.mage);
+            return merlin;
+        } else {
+            Boss ganon = new Boss("Mestiefiel", 3000, 400, R.drawable.boss);
+            return ganon;
+        }
+    }
+
 }

@@ -7,12 +7,23 @@ public  abstract class Persos {
     private int attack;
     private String name;
     protected String weapon;
+    protected int imageId;
 
-    public Persos (String name, int pv, int attack) {
+
+    public Persos (String name, int pv, int attack, int imageId ) {
+        this.imageId = imageId;
         this.name = name;
         this.pv = pv;
         this.attack = attack;
         this.weapon = weaponShuffle();
+    }
+
+    public int getImageId() {
+        return imageId;
+    }
+
+    public void setImageId(int imageId) {
+        this.imageId = imageId;
     }
 
     public String getName() {

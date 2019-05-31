@@ -5,11 +5,12 @@ public class Heros extends Persos {
     private int nbPotion;
     private int pm;
 
-    public Heros (String name, int pv, int pm, int attack) {
-        super (name, pv, attack);
+    public Heros (String name, int pv, int pm, int attack, int imageId) {
+        super (name, pv, attack, imageId);
         this.pm = pm;
         this.nbPotion = 3;
-        this.weapon = "sword"; //à supprimer
+        this.weapon=null;
+
 
     }
     public int getPm() {
@@ -27,20 +28,16 @@ public class Heros extends Persos {
 
     public void weaponChoice() {
         Scanner myChoice = new Scanner(System.in);
-        System.out.println("Select your weapon: [1] : staff, [2] : axe or [3] : sword");
         int index;
         index = Integer.parseInt(myChoice.next());
         if(index == 1) {
             setWeapon("staff");
-            System.out.println("You pick staff, strong against sword but weak against axe");
         }
         else if(index == 2) {
             setWeapon("axe");
-            System.out.println("You pick axe, strong against staff but weak against sword");
         }
         else if(index == 3) {
             setWeapon("sword");
-            System.out.println("You pick sword, strong against axe but weak against staff");
         }
     }
 
@@ -49,21 +46,15 @@ public class Heros extends Persos {
 
         Scanner myChoice = new Scanner(System.in);
         //Choice
-        System.out.println("Select your attack: [1] : physical attack, [2] : magical attack or [3] : take a potion");
         int value;
         value = Integer.parseInt(myChoice.next());
         //attaque de base héro
         if(value == 1){
             //cas particulier du mage
             if(m.getClass().equals(Mage.class)) {
-                System.out.println(getName() + " attacks ! ");
-                System.out.println(m.getName() + " is a wizard and takes no damage ! ");
             }
             else {
                 damage(m);
-                System.out.println(getName() + " attacks ! ");
-                System.out.println(m.getName() + " takes damages ! ");
-                System.out.println(m.isKo() ? m.getName() + " is dead" : m.getName() + " is still alive and its life is: " + m.getPv());
             }
         }
         //attaque de magie
@@ -72,13 +63,9 @@ public class Heros extends Persos {
                 this.setPm(this.getPm() - 5);
                 damage(m);
                 damage(m);
-                System.out.println(getName() + " attacks ! ");
-                System.out.println(m.getName() + " takes damages ! ");
-                System.out.println(m.isKo() ? m.getName() + " is dead " : m.getName() + " is still alive and its life is: " + m.getPv());
-                System.out.println(" your MP is: " + this.getPm());
             }
             else {
-                System.out.println("You haven't enough MP, skip your turn");
+                //TODO : avertir qu'il n'y a plus de MP
             }
         }
         //popo
@@ -86,8 +73,6 @@ public class Heros extends Persos {
             if(this.getPotion() > 0){
                 this.setPv(this.getPv() + 1500);
                 this.setPotion(this.getPotion() - 1);
-                System.out.println(" you take a potion, your current life is : " + this.getPv());
-                System.out.println("Still get " + this.getPotion() + " potion(s)");
             }
             else {
                 System.out.println("You haven't enough potion, skip your turn");

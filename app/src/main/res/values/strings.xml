@@ -12,4 +12,7 @@
     <string name="physical_attack">physical attack</string>
     <string name="magical_attack">magical attack</string>
     <string name="potion">potion</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
