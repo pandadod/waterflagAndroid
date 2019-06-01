@@ -2,6 +2,8 @@ package com.example.waterflag;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -31,7 +33,7 @@ public class Salle1 extends AppCompatActivity {
         final TextView tvWeaponMonstre = findViewById(R.id.tvWeaponMonstre);
         final ToggleButton tbAxe = findViewById(R.id.tbAxe);
         final ToggleButton tbStaff = findViewById(R.id.tbStaff);
-
+        final ConstraintLayout salle1Layout = findViewById(R.id.salle1_layout);
         final ToggleButton tbSword = findViewById(R.id.tbSword);
         tbSword.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -44,6 +46,7 @@ public class Salle1 extends AppCompatActivity {
                 }
                 else {
                     tbSword.setChecked(false);
+                    hero.setWeapon(null);
                 }
             }
         });
@@ -58,6 +61,7 @@ public class Salle1 extends AppCompatActivity {
                 }
                 else {
                     tbAxe.setChecked(false);
+                    hero.setWeapon(null);
                 }
             }
         });
@@ -72,15 +76,16 @@ public class Salle1 extends AppCompatActivity {
                 }
                 else {
                     tbStaff.setChecked(false);
+                    hero.setWeapon(null);
                 }
             }
         });
 
-        final Persos p = monstre();
-        tvPvMonstre.setText(String.valueOf(p.getPv()));
-        tvNameMonstre.setText(p.getName());
-        tvWeaponMonstre.setText(p.getWeapon());
-        ivBackground.setImageResource(p.getImageId());
+        final Persos[] p = {monstre()};
+        tvPvMonstre.setText(String.valueOf(p[0].getPv()));
+        tvNameMonstre.setText(p[0].getName());
+        tvWeaponMonstre.setText(p[0].getWeapon());
+        ivBackground.setImageResource(p[0].getImageId());
 
         final ImageButton ibMagicAttack = findViewById(R.id.ibMA);
 
@@ -92,55 +97,60 @@ public class Salle1 extends AppCompatActivity {
         ibPhysicAttack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                hero.damage(p);
-                tvPvMonstre.setText(String.valueOf(p.getPv()));
-
-                if (p.isKo()) {
-                    p.setPv(0);
-                    tvPvMonstre.setText(String.valueOf(p.getPv()));
+                if (hero.getWeapon()==null) {
+                    Snackbar.make(salle1Layout, "You must choose a weapon !", Snackbar.LENGTH_SHORT).show();
                 }
-                if (!p.isKo()) {
-                    if(p.equals(Boss.class)) {
-                        int index;
-                        Random r = new Random();
-                        index = r.nextInt((1 - 0) + 1) + 0;
-                        if(index == 0) {
-                            p.damage(hero);
-                        }
-                        else {
-                            p.damage(hero);
-                            p.damage(hero);
-                        }
+                else {
+                    hero.damage(p[0]);
+                    tvPvMonstre.setText(String.valueOf(p[0].getPv()));
+
+                    if (p[0].isKo()) {
+                        p[0].setPv(0);
+                        tvPvMonstre.setText(String.valueOf(p[0].getPv()));
                     }
-                    p.damage(hero);
+                    if (!p[0].isKo()) {
+                        if(p[0].equals(Boss.class)) {
+                            int index;
+                            Random r = new Random();
+                            index = r.nextInt((1 - 0) + 1) + 0;
+                            if(index == 0) {
+                                p[0].damage(hero);
+                            }
+                            else {
+                                p[0].damage(hero);
+                                p[0].damage(hero);
+                            }
+                        }
+                        p[0].damage(hero);
 
 
-                    tvPv.setText(String.valueOf(hero.getPv()));
-                    if (hero.isKo()) {
-                        hero.setPv(0);
                         tvPv.setText(String.valueOf(hero.getPv()));
-                        ibPhysicAttack.setEnabled(false);
-                        ibMagicAttack.setEnabled(false);
-                        ibPotion.setEnabled(false);
+                        if (hero.isKo()) {
+                            hero.setPv(0);
+                            tvPv.setText(String.valueOf(hero.getPv()));
+                            ibPhysicAttack.setEnabled(false);
+                            ibMagicAttack.setEnabled(false);
+                            ibPotion.setEnabled(false);
+                        } else {
+
+                        }
+
                     } else {
-
+                        ivBackground.setImageResource(R.drawable.victory);
                     }
-
-                } else {
-                    ivBackground.setImageResource(R.drawable.victory);
                 }
+
             }
         });
 
         ibMagicAttack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Persos p = monstre();
-                tvPvMonstre.setText(String.valueOf(p.getPv()));
-                tvNameMonstre.setText(p.getName());
-                tvWeaponMonstre.setText(p.getWeapon());
-                ivBackground.setImageResource(p.getImageId());
+                p[0] = monstre();
+                tvPvMonstre.setText(String.valueOf(p[0].getPv()));
+                tvNameMonstre.setText(p[0].getName());
+                tvWeaponMonstre.setText(p[0].getWeapon());
+                ivBackground.setImageResource(p[0].getImageId());
             }
         });
 
@@ -169,7 +179,6 @@ public class Salle1 extends AppCompatActivity {
         });
 
     }
-
     public Persos monstre() {
         Random r = new Random();
         int index = r.nextInt((10 - 0) + 1) + 0;
@@ -184,5 +193,6 @@ public class Salle1 extends AppCompatActivity {
             return ganon;
         }
     }
+
 
 }
