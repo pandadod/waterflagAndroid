@@ -10,6 +10,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.ScrollingMovementMethod;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -27,6 +28,7 @@ public class Salle1 extends AppCompatActivity {
         TextView tvPseudo = findViewById(R.id.tvpseudo);
         tvPseudo.setText(sharedpref.getString("PSEUDO", ""));
         final Heros hero = new Heros(tvPseudo.getText().toString(), 4000, 50, 200, R.drawable.fond);
+
         final ImageView ivBackground = findViewById(R.id.ivMonstre);
         final TextView tvPvMonstre = findViewById(R.id.tvPvMonstre);
         final TextView tvNameMonstre = findViewById(R.id.tvNameMonstre);
@@ -93,7 +95,18 @@ public class Salle1 extends AppCompatActivity {
         tvPv.setText(String.valueOf(hero.getPv()));
         final ImageButton ibPotion = findViewById(R.id.ibPotion);
         final ImageButton ibPhysicAttack = findViewById(R.id.ibPa);
-
+        final Button buttonNext = findViewById(R.id.btNext);
+        buttonNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                p[0] = monstre();
+                tvPvMonstre.setText(String.valueOf(p[0].getPv()));
+                tvNameMonstre.setText(p[0].getName());
+                tvWeaponMonstre.setText(p[0].getWeapon());
+                ivBackground.setImageResource(p[0].getImageId());
+                buttonNext.setVisibility(View.INVISIBLE);
+            }
+        });
         ibPhysicAttack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -107,8 +120,13 @@ public class Salle1 extends AppCompatActivity {
                     if (p[0].isKo()) {
                         p[0].setPv(0);
                         tvPvMonstre.setText(String.valueOf(p[0].getPv()));
+
+                        if(p[0].getPv()==0) {
+                            buttonNext.setVisibility(View.VISIBLE);
+                        }
                     }
                     if (!p[0].isKo()) {
+
                         if(p[0].equals(Boss.class)) {
                             int index;
                             Random r = new Random();
@@ -131,6 +149,9 @@ public class Salle1 extends AppCompatActivity {
                             ibPhysicAttack.setEnabled(false);
                             ibMagicAttack.setEnabled(false);
                             ibPotion.setEnabled(false);
+                            tbAxe.setEnabled(false);
+                            tbStaff.setEnabled(false);
+                            tbSword.setEnabled(false);
                         } else {
 
                         }
@@ -146,11 +167,7 @@ public class Salle1 extends AppCompatActivity {
         ibMagicAttack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                p[0] = monstre();
-                tvPvMonstre.setText(String.valueOf(p[0].getPv()));
-                tvNameMonstre.setText(p[0].getName());
-                tvWeaponMonstre.setText(p[0].getWeapon());
-                ivBackground.setImageResource(p[0].getImageId());
+
             }
         });
 
