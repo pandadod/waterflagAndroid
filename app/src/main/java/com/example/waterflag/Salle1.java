@@ -2,13 +2,10 @@ package com.example.waterflag;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -24,29 +21,57 @@ public class Salle1 extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_salle1);
+
         SharedPreferences sharedpref = Salle1.this.getSharedPreferences("com.example.waterflag", Context.MODE_PRIVATE);
         TextView tvPseudo = findViewById(R.id.tvpseudo);
         tvPseudo.setText(sharedpref.getString("PSEUDO", ""));
+
         final Heros hero = new Heros(tvPseudo.getText().toString(), 4000, 50, 200, R.drawable.fond);
+        final Persos[] p = {monster()};
+
+        final TextView tvNbPotion = findViewById(R.id.tvNbPotion);
+        tvNbPotion.setText(String.valueOf(hero.getPotion()));
+
+        final TextView tvPm = findViewById(R.id.tvPm);
+        tvPm.setText(String.valueOf(hero.getPm()));
 
         final ImageView ivBackground = findViewById(R.id.ivMonstre);
+        ivBackground.setImageResource(p[0].getImageId());
+
         final TextView tvPvMonstre = findViewById(R.id.tvPvMonstre);
+        tvPvMonstre.setText(String.valueOf(p[0].getPv()));
+
         final TextView tvNameMonstre = findViewById(R.id.tvNameMonstre);
+        tvNameMonstre.setText(p[0].getName());
+
         final TextView tvWeaponMonstre = findViewById(R.id.tvWeaponMonstre);
+        tvWeaponMonstre.setText(p[0].getWeapon());
+
+        final ConstraintLayout salle1Layout = findViewById(R.id.salle1_layout);
+
+        final ImageButton ibMagicAttack = findViewById(R.id.ibMA);
+        final ImageButton ibPotion = findViewById(R.id.ibPotion);
+        final ImageButton ibPhysicAttack = findViewById(R.id.ibPa);
+
+        final TextView tvPv = findViewById(R.id.tvPv);
+        tvPv.setText(String.valueOf(hero.getPv()));
+
+        final Button buttonNext = findViewById(R.id.btNext);
+
         final ToggleButton tbAxe = findViewById(R.id.tbAxe);
         final ToggleButton tbStaff = findViewById(R.id.tbStaff);
-        final ConstraintLayout salle1Layout = findViewById(R.id.salle1_layout);
         final ToggleButton tbSword = findViewById(R.id.tbSword);
+
+
         tbSword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (tbSword.isChecked()){
+                if (tbSword.isChecked()) {
                     tbSword.setChecked(true);
                     hero.setWeapon("sword");
                     tbAxe.setChecked(false);
                     tbStaff.setChecked(false);
-                }
-                else {
+                } else {
                     tbSword.setChecked(false);
                     hero.setWeapon(null);
                 }
@@ -55,13 +80,12 @@ public class Salle1 extends AppCompatActivity {
         tbAxe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (tbAxe.isChecked()){
+                if (tbAxe.isChecked()) {
                     tbAxe.setChecked(true);
                     hero.setWeapon("axe");
                     tbSword.setChecked(false);
                     tbStaff.setChecked(false);
-                }
-                else {
+                } else {
                     tbAxe.setChecked(false);
                     hero.setWeapon(null);
                 }
@@ -70,36 +94,22 @@ public class Salle1 extends AppCompatActivity {
         tbStaff.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (tbStaff.isChecked()){
+                if (tbStaff.isChecked()) {
                     tbStaff.setChecked(true);
                     hero.setWeapon("staff");
                     tbSword.setChecked(false);
                     tbAxe.setChecked(false);
-                }
-                else {
+                } else {
                     tbStaff.setChecked(false);
                     hero.setWeapon(null);
                 }
             }
         });
 
-        final Persos[] p = {monstre()};
-        tvPvMonstre.setText(String.valueOf(p[0].getPv()));
-        tvNameMonstre.setText(p[0].getName());
-        tvWeaponMonstre.setText(p[0].getWeapon());
-        ivBackground.setImageResource(p[0].getImageId());
-
-        final ImageButton ibMagicAttack = findViewById(R.id.ibMA);
-
-        final TextView tvPv = findViewById(R.id.tvPv);
-        tvPv.setText(String.valueOf(hero.getPv()));
-        final ImageButton ibPotion = findViewById(R.id.ibPotion);
-        final ImageButton ibPhysicAttack = findViewById(R.id.ibPa);
-        final Button buttonNext = findViewById(R.id.btNext);
         buttonNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                p[0] = monstre();
+                p[0] = monster();
                 tvPvMonstre.setText(String.valueOf(p[0].getPv()));
                 tvNameMonstre.setText(p[0].getName());
                 tvWeaponMonstre.setText(p[0].getWeapon());
@@ -107,43 +117,43 @@ public class Salle1 extends AppCompatActivity {
                 buttonNext.setVisibility(View.INVISIBLE);
             }
         });
+
         ibPhysicAttack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (hero.getWeapon()==null) {
+                if (hero.getWeapon() == null) {
                     Snackbar.make(salle1Layout, "You must choose a weapon !", Snackbar.LENGTH_SHORT).show();
-                }
-                else {
+                } else {
                     hero.damage(p[0]);
                     tvPvMonstre.setText(String.valueOf(p[0].getPv()));
-
                     if (p[0].isKo()) {
                         p[0].setPv(0);
                         tvPvMonstre.setText(String.valueOf(p[0].getPv()));
-
-                        if(p[0].getPv()==0) {
+                        if (p[0].getName().equals("Mestiefiel")) {
+                            ivBackground.setImageResource(R.drawable.dead);
+                            buttonNext.setVisibility(View.INVISIBLE);
+                        }
+                        else {
                             buttonNext.setVisibility(View.VISIBLE);
+                            ivBackground.setImageResource(R.drawable.victory);
                         }
                     }
                     if (!p[0].isKo()) {
-
-                        if(p[0].equals(Boss.class)) {
+                        if (p[0].getName().equals("Mestiefiel")) {
                             int index;
                             Random r = new Random();
                             index = r.nextInt((1 - 0) + 1) + 0;
-                            if(index == 0) {
+                            if (index == 0) {
                                 p[0].damage(hero);
-                            }
-                            else {
+                            } else {
                                 p[0].damage(hero);
                                 p[0].damage(hero);
                             }
                         }
                         p[0].damage(hero);
-
-
                         tvPv.setText(String.valueOf(hero.getPv()));
                         if (hero.isKo()) {
+                            ivBackground.setImageResource(R.drawable.game_over);
                             hero.setPv(0);
                             tvPv.setText(String.valueOf(hero.getPv()));
                             ibPhysicAttack.setEnabled(false);
@@ -152,51 +162,83 @@ public class Salle1 extends AppCompatActivity {
                             tbAxe.setEnabled(false);
                             tbStaff.setEnabled(false);
                             tbSword.setEnabled(false);
-                        } else {
-
                         }
-
-                    } else {
-                        ivBackground.setImageResource(R.drawable.victory);
                     }
                 }
-
             }
         });
 
         ibMagicAttack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (hero.getPm() > 5) {
+                    p[0].setPv(p[0].getPv() - hero.getAttack() * 2);
+                    hero.setPm(hero.getPm() - 5);
+                    tvPm.setText(String.valueOf(hero.getPm()));
+                    tvPvMonstre.setText(String.valueOf(p[0].getPv()));
+                    if (p[0].isKo()) {
+                        p[0].setPv(0);
+                        tvPvMonstre.setText(String.valueOf(p[0].getPv()));
+                        if (p[0].getName().equals("Mestiefiel")) {
+                            ivBackground.setImageResource(R.drawable.dead);
+                            buttonNext.setVisibility(View.INVISIBLE);
+                        }
+                        else {
+                            buttonNext.setVisibility(View.VISIBLE);
+                            ivBackground.setImageResource(R.drawable.victory);
+                        }
+                    }
+                    if (!p[0].isKo()) {
 
+                        if (p[0].getName().equals("Mestiefiel")) {
+                            int index;
+                            Random r = new Random();
+                            index = r.nextInt((1 - 0) + 1) + 0;
+                            if (index == 0) {
+                                hero.setPv(hero.getPv() - p[0].getAttack());
+                            } else {
+                                hero.setPv(hero.getPv() - p[0].getAttack());
+                                hero.setPv(hero.getPv() - p[0].getAttack());
+                            }
+                        }
+                        hero.setPv(hero.getPv() - p[0].getAttack());
+                        tvPv.setText(String.valueOf(hero.getPv()));
+                        if (hero.isKo()) {
+                            ivBackground.setImageResource(R.drawable.game_over);
+                            hero.setPv(0);
+                            tvPv.setText(String.valueOf(hero.getPv()));
+                            ibPhysicAttack.setEnabled(false);
+                            ibMagicAttack.setEnabled(false);
+                            ibPotion.setEnabled(false);
+                            tbAxe.setEnabled(false);
+                            tbStaff.setEnabled(false);
+                            tbSword.setEnabled(false);
+                        }
+
+                    }
+                } else {
+                    Snackbar.make(salle1Layout, "You don't have enough MP", Snackbar.LENGTH_SHORT).show();
+                }
             }
         });
-
-
-        //test sur les potions à supprimer ? voir avec la méthode dé la classe Heros
-        final TextView tvNbPotion = findViewById(R.id.tvNbPotion);
-        tvNbPotion.setText(String.valueOf(3));
 
         ibPotion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                int nbPotion = Integer.parseInt(tvNbPotion.getText().toString());
-
-                if (nbPotion > 0) {
+                if (hero.getPotion() > 0) {
                     hero.setPv(hero.getPv() + 1500);
+                    hero.setPotion(hero.getPotion() - 1);
                     tvPv.setText(String.valueOf(hero.getPv()));
-                    tvNbPotion.setText(String.valueOf(nbPotion - 1));
-
-
+                    tvNbPotion.setText(String.valueOf(hero.getPotion()));
                 } else {
-                    tvNbPotion.setText(String.valueOf(0));
-
+                    Snackbar.make(salle1Layout, "You don't have potion !", Snackbar.LENGTH_SHORT).show();
                 }
             }
         });
-
     }
-    public Persos monstre() {
+
+    public Persos monster() {
         Random r = new Random();
         int index = r.nextInt((10 - 0) + 1) + 0;
         if (index < 5) {
@@ -210,6 +252,4 @@ public class Salle1 extends AppCompatActivity {
             return ganon;
         }
     }
-
-
 }
