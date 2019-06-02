@@ -65,7 +65,7 @@ public abstract class Persos {
     public String weaponShuffle() {
         int index;
         Random r = new Random();
-        index = r.nextInt((2 - 0) + 2);
+        index = r.nextInt((2 - 0) + 1);
         switch (index) {
             case 0:
                 weapon = "staff";

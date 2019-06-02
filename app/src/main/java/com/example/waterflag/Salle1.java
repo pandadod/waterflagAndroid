@@ -9,11 +9,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import java.util.Random;
+
+import pl.droidsonroids.gif.GifImageView;
 
 public class Salle1 extends AppCompatActivity {
 
@@ -26,8 +28,20 @@ public class Salle1 extends AppCompatActivity {
         TextView tvPseudo = findViewById(R.id.tvpseudo);
         tvPseudo.setText(sharedpref.getString("PSEUDO", ""));
 
-        final Heros hero = new Heros(tvPseudo.getText().toString(), 4000, 50, 200, R.drawable.fond);
+        final Heros hero = new Heros(tvPseudo.getText().toString(), 4000, 50, 200, R.drawable.hero);
         final Persos[] p = {monster()};
+
+        final ProgressBar lifeBarHero = findViewById(R.id.lifebar);
+        lifeBarHero.setMax(hero.getPv());
+        lifeBarHero.setProgress(4000, true);
+
+        final ProgressBar magicBar = findViewById(R.id.magicbar);
+        magicBar.setMax(hero.getPm());
+        magicBar.setProgress(hero.getPm(), true);
+
+        final ProgressBar lifeBarMonstre = findViewById(R.id.lifeMonsterBar);
+        lifeBarMonstre.setMax(p[0].getPv());
+        lifeBarMonstre.setProgress(p[0].getPv(), true);
 
         final TextView tvNbPotion = findViewById(R.id.tvNbPotion);
         tvNbPotion.setText(String.valueOf(hero.getPotion()));
@@ -35,8 +49,11 @@ public class Salle1 extends AppCompatActivity {
         final TextView tvPm = findViewById(R.id.tvPm);
         tvPm.setText(String.valueOf(hero.getPm()));
 
-        final ImageView ivBackground = findViewById(R.id.ivMonstre);
-        ivBackground.setImageResource(p[0].getImageId());
+        final GifImageView ivMonster = findViewById(R.id.ivMonstre);
+        ivMonster.setImageResource(p[0].getImageId());
+
+        final GifImageView ivHero = findViewById(R.id.ivperso);
+        ivHero.setImageResource(R.drawable.hero);
 
         final TextView tvPvMonstre = findViewById(R.id.tvPvMonstre);
         tvPvMonstre.setText(String.valueOf(p[0].getPv()));
@@ -110,10 +127,12 @@ public class Salle1 extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 p[0] = monster();
+                lifeBarMonstre.setMax(p[0].getPv());
+                lifeBarMonstre.setProgress(p[0].getPv(), true);
                 tvPvMonstre.setText(String.valueOf(p[0].getPv()));
                 tvNameMonstre.setText(p[0].getName());
                 tvWeaponMonstre.setText(p[0].getWeapon());
-                ivBackground.setImageResource(p[0].getImageId());
+                ivMonster.setImageResource(p[0].getImageId());
                 buttonNext.setVisibility(View.INVISIBLE);
             }
         });
@@ -124,20 +143,26 @@ public class Salle1 extends AppCompatActivity {
                 if (hero.getWeapon() == null) {
                     Snackbar.make(salle1Layout, "You must choose a weapon !", Snackbar.LENGTH_SHORT).show();
                 } else {
-                    hero.damage(p[0]);
-                    tvPvMonstre.setText(String.valueOf(p[0].getPv()));
-                    if (p[0].isKo()) {
-                        p[0].setPv(0);
+                    if (p[0].getName().equals("Baba Yaga")) {
+                        Snackbar.make(salle1Layout, "Wizard can't receive physical damage !", Snackbar.LENGTH_SHORT).show();
+                    } else {
+                        hero.damage(p[0]);
+                        lifeBarMonstre.setProgress(p[0].getPv(), true);
                         tvPvMonstre.setText(String.valueOf(p[0].getPv()));
-                        if (p[0].getName().equals("Mestiefiel")) {
-                            ivBackground.setImageResource(R.drawable.dead);
-                            buttonNext.setVisibility(View.INVISIBLE);
-                        }
-                        else {
-                            buttonNext.setVisibility(View.VISIBLE);
-                            ivBackground.setImageResource(R.drawable.victory);
+                        if (p[0].isKo()) {
+                            p[0].setPv(0);
+                            lifeBarMonstre.setProgress(p[0].getPv(), true);
+                            tvPvMonstre.setText(String.valueOf(p[0].getPv()));
+                            if (p[0].getName().equals("Mestiefiel")) {
+                                ivMonster.setImageResource(R.drawable.you_win);
+                                buttonNext.setVisibility(View.INVISIBLE);
+                            } else {
+                                buttonNext.setVisibility(View.VISIBLE);
+                                ivMonster.setImageResource(R.drawable.you_win);
+                            }
                         }
                     }
+
                     if (!p[0].isKo()) {
                         if (p[0].getName().equals("Mestiefiel")) {
                             int index;
@@ -145,15 +170,19 @@ public class Salle1 extends AppCompatActivity {
                             index = r.nextInt((1 - 0) + 1) + 0;
                             if (index == 0) {
                                 p[0].damage(hero);
+                                lifeBarHero.setProgress(hero.getPv(), true);
+
                             } else {
                                 p[0].damage(hero);
                                 p[0].damage(hero);
+                                lifeBarHero.setProgress(hero.getPv(), true);
                             }
                         }
                         p[0].damage(hero);
+                        lifeBarHero.setProgress(hero.getPv(), true);
                         tvPv.setText(String.valueOf(hero.getPv()));
                         if (hero.isKo()) {
-                            ivBackground.setImageResource(R.drawable.game_over);
+                            ivMonster.setImageResource(R.drawable.game_over);
                             hero.setPv(0);
                             tvPv.setText(String.valueOf(hero.getPv()));
                             ibPhysicAttack.setEnabled(false);
@@ -171,21 +200,23 @@ public class Salle1 extends AppCompatActivity {
         ibMagicAttack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (hero.getPm() > 5) {
+                if (hero.getPm() >= 5) {
                     p[0].setPv(p[0].getPv() - hero.getAttack() * 2);
                     hero.setPm(hero.getPm() - 5);
+                    magicBar.setProgress(hero.getPm(), true);
                     tvPm.setText(String.valueOf(hero.getPm()));
+                    lifeBarMonstre.setProgress(p[0].getPv(), true);
                     tvPvMonstre.setText(String.valueOf(p[0].getPv()));
                     if (p[0].isKo()) {
                         p[0].setPv(0);
+                        lifeBarMonstre.setProgress(p[0].getPv(), true);
                         tvPvMonstre.setText(String.valueOf(p[0].getPv()));
                         if (p[0].getName().equals("Mestiefiel")) {
-                            ivBackground.setImageResource(R.drawable.dead);
+                            ivMonster.setImageResource(R.drawable.you_win);
                             buttonNext.setVisibility(View.INVISIBLE);
-                        }
-                        else {
+                        } else {
                             buttonNext.setVisibility(View.VISIBLE);
-                            ivBackground.setImageResource(R.drawable.victory);
+                            ivMonster.setImageResource(R.drawable.you_win);
                         }
                     }
                     if (!p[0].isKo()) {
@@ -196,15 +227,18 @@ public class Salle1 extends AppCompatActivity {
                             index = r.nextInt((1 - 0) + 1) + 0;
                             if (index == 0) {
                                 hero.setPv(hero.getPv() - p[0].getAttack());
+                                lifeBarHero.setProgress(hero.getPv(), true);
                             } else {
                                 hero.setPv(hero.getPv() - p[0].getAttack());
                                 hero.setPv(hero.getPv() - p[0].getAttack());
+                                lifeBarHero.setProgress(hero.getPv(), true);
                             }
                         }
                         hero.setPv(hero.getPv() - p[0].getAttack());
+                        lifeBarHero.setProgress(hero.getPv(), true);
                         tvPv.setText(String.valueOf(hero.getPv()));
                         if (hero.isKo()) {
-                            ivBackground.setImageResource(R.drawable.game_over);
+                            ivMonster.setImageResource(R.drawable.game_over);
                             hero.setPv(0);
                             tvPv.setText(String.valueOf(hero.getPv()));
                             ibPhysicAttack.setEnabled(false);
@@ -228,6 +262,10 @@ public class Salle1 extends AppCompatActivity {
 
                 if (hero.getPotion() > 0) {
                     hero.setPv(hero.getPv() + 1500);
+                    if (hero.getPv() > 4000) {
+                        lifeBarHero.setMax(hero.getPv());
+                    }
+                    lifeBarHero.setProgress(hero.getPv(), true);
                     hero.setPotion(hero.getPotion() - 1);
                     tvPv.setText(String.valueOf(hero.getPv()));
                     tvNbPotion.setText(String.valueOf(hero.getPotion()));
